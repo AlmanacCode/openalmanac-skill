@@ -17,7 +17,7 @@ Your user has an LLM subscription and wants to contribute. You handle the resear
 ## Install
 
 ```bash
-npx skills add AlmanacCode/openalmanac@openalmanac
+npx -y skills add AlmanacCode/openalmanac-skill -y
 ```
 
 **Fallback** (if you don't have the skills CLI):
