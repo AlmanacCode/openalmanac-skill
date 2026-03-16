@@ -37,6 +37,7 @@ curl -sL https://www.openalmanac.org/ai-patterns-to-avoid.md -o ai-patterns-to-a
 |-|-|
 | SKILL.md | https://www.openalmanac.org/skill.md |
 | ai-patterns-to-avoid.md | https://www.openalmanac.org/ai-patterns-to-avoid.md |
+| ai-linking-guidelines.md | https://www.openalmanac.org/ai-linking-guidelines.md |
 
 
 ---
@@ -708,6 +709,10 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | Read URL | GET | `/api/research/read?url=...` | Yes | — |
 | Create article | POST | `/api/articles` | Yes | `application/json` or `text/markdown` |
 | Create or edit article | PUT | `/api/articles/{id}` | Yes | `application/json` or `text/markdown` |
+| Create stub | POST | `/api/articles/stub` | Yes | `application/json` |
+| Wanted articles | GET | `/api/articles/wanted` | No | — |
+| Related articles | GET | `/api/articles/{id}/related` | No | — |
+| Search people | GET | `/api/people/search?query=...` | Yes | — |
 | List versions | GET | `/api/articles/{id}/versions` | No | — |
 | Get version | GET | `/api/articles/{id}/versions/{n}` | No | — |
 | Revert to version | POST | `/api/articles/{id}/versions/{n}/revert` | Yes | — |
@@ -817,6 +822,149 @@ After every `push`, follow this flow to connect your article with relevant commu
 3. Present your suggestions to the user: *"I'd suggest linking this to Machine Learning, Deep Learning, and Neural Networks. Adjust or press enter to accept."*
 4. If the user confirms or skips → call `link_article` with all suggested community slugs
 5. If the user picks specific ones → call `link_article` with only those
+
+---
+
+## Article Linking & Stubs
+
+Articles can link to each other using `[[slug|Display Text]]` wikilink syntax. Every entity mentioned in an article should have an article or stub. **Before writing articles with entity links, read the [linking guidelines](https://www.openalmanac.org/ai-linking-guidelines.md).**
+
+### Wikilink syntax
+
+Use `[[slug|Display Text]]` in the article markdown body. The slug must match an existing article or stub — links to non-existent slugs are stripped to plain text on push.
+
+```markdown
+She studied [[reinforcement-learning|reinforcement learning]] at [[mit|MIT]]
+under the supervision of [[john-smith-4a8b2c1|John Smith]].
+```
+
+### Create a stub
+
+Stubs are placeholder articles for entities that don't have a full article yet. **Requires authentication.**
+
+```bash
+curl -X POST https://api.openalmanac.org/api/articles/stub \
+  -H "Authorization: Bearer oa_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "slug": "reinforcement-learning",
+    "title": "Reinforcement Learning",
+    "entity_type": "topic",
+    "headline": "Branch of machine learning focused on sequential decision-making",
+    "summary": "Reinforcement learning is a branch of machine learning where agents learn to make decisions by interacting with an environment and receiving rewards or penalties."
+  }'
+```
+
+**Fields:**
+- `slug` (required) — Kebab-case identifier. Same rules as `article_id`.
+- `title` (required) — Display title (max 500 chars)
+- `entity_type` (optional) — One of: `person`, `organization`, `topic`, `event`, `creative_work`, `place`
+- `headline` (optional) — Short description (e.g. "Professor of CS at MIT")
+- `image_url` (optional) — Image URL for the entity
+- `summary` (optional) — 2-4 sentence summary. Becomes the stub page content.
+
+**Idempotent:** If the slug already exists, returns the existing article/stub with status `article_exists` or `stub_exists` (HTTP 200). New stubs return HTTP 201.
+
+Response:
+```json
+{
+  "status": "created",
+  "article": { "article_id": "reinforcement-learning", "title": "...", "stub": true, ... }
+}
+```
+
+### Search people
+
+Find people by name to get their canonical slug for linking. **Requires authentication.**
+
+```bash
+curl "https://api.openalmanac.org/api/people/search?query=John+Smith+MIT&limit=5" \
+  -H "Authorization: Bearer oa_your_api_key"
+```
+
+Response:
+```json
+{
+  "query": "John Smith MIT",
+  "count": 3,
+  "results": [
+    {
+      "slug": "john-smith-4a8b2c1",
+      "name": "John Smith",
+      "headline": "Professor of CS at MIT",
+      "image_url": "https://...",
+      "location": "Cambridge, MA",
+      "profile_url": "https://linkedin.com/in/john-smith-4a8b2c1"
+    }
+  ]
+}
+```
+
+Use the returned `slug` when calling `create_stub` for people.
+
+### Wanted articles (most linked stubs)
+
+Find stubs that are referenced by the most articles — the topics most in demand.
+
+```bash
+curl "https://api.openalmanac.org/api/articles/wanted?limit=20"
+```
+
+Response:
+```json
+{
+  "total": 15,
+  "limit": 20,
+  "offset": 0,
+  "articles": [
+    {
+      "article_id": "gradient-descent",
+      "title": "Gradient Descent",
+      "entity_type": "topic",
+      "headline": "Iterative optimization algorithm",
+      "incoming_link_count": 12
+    }
+  ]
+}
+```
+
+### Related articles
+
+Get articles linked to/from a given article.
+
+```bash
+curl https://api.openalmanac.org/api/articles/machine-learning/related
+```
+
+Response:
+```json
+{
+  "outgoing": [
+    {"article_id": "neural-networks", "title": "Neural Networks", "stub": false, "display_label": "neural networks"}
+  ],
+  "incoming": [
+    {"article_id": "ai-history", "title": "History of AI", "stub": false, "display_label": "machine learning"}
+  ]
+}
+```
+
+### New response fields
+
+Article responses (`GET /api/articles/{id}`) now include:
+- `stub` (boolean) — Whether this is a stub article
+- `entity_type` (string|null) — Entity type (`person`, `organization`, `topic`, `event`, `creative_work`, `place`)
+- `linked_articles` (object|null) — Map of slug → metadata for all `[[wikilinks]]` in the content
+
+Search responses (`GET /api/search`) now include `stub` and `entity_type` on each hit, and accept:
+- `include_stubs` (boolean, default `true`) — Set to `false` to exclude stub articles
+
+### Linking workflow
+
+1. **For each entity mentioned** in your article:
+   - People: `search_people` → `create_stub` with their slug
+   - Topics/orgs/events: `search_articles` → if not found, `create_stub`
+2. **Write `[[slug|Display Text]]`** in the article body
+3. **Push** — backend validates links, strips broken ones, creates relationship edges
 
 ---
 
