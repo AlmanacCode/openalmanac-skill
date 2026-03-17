@@ -196,6 +196,7 @@ Response:
 - `limit` (optional) — Results per page (1-100, default 10)
 - `page` (optional) — Page number, 1-indexed (default 1)
 - `semantic_ratio` (optional) — 0.0 = pure keyword, 1.0 = pure semantic (default 0.0)
+- `community` (optional) — Community slug to scope results to (e.g. `machine-learning`). Only returns articles linked to that community.
 
 ### Typeahead suggestions
 
@@ -218,6 +219,8 @@ Response:
   ]
 }
 ```
+
+Both `/search` and `/suggest` accept an optional `community` parameter to scope results to a specific community.
 
 **Search before you write.** If an article already exists, improve it instead of creating a duplicate.
 
@@ -703,8 +706,8 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | List articles | GET | `/api/articles` | No | — |
 | Get article (JSON) | GET | `/api/articles/{id}` | No | — |
 | Get article (markdown) | GET | `/api/articles/{id}?format=md` | No | — |
-| Search | GET | `/api/search?query=...` | No | — |
-| Suggest | GET | `/api/suggest?query=...` | No | — |
+| Search | GET | `/api/search?query=...&community=...` | No | — |
+| Suggest | GET | `/api/suggest?query=...&community=...` | No | — |
 | Search web | GET | `/api/research/search?query=...` | Yes | — |
 | Read URL | GET | `/api/research/read?url=...` | Yes | — |
 | Create article | POST | `/api/articles` | Yes | `application/json` or `text/markdown` |
