@@ -76,14 +76,15 @@ People use LinkedIn vanity IDs as slugs for guaranteed uniqueness.
 
 1. **Search for the person.** Call `search_people` with their name and affiliation (e.g. "John Smith MIT"). This searches LinkedIn providers and returns candidates with slugs.
 2. **Pick the correct match.** Verify the person by headline, location, and other details.
-3. **Create the stub.** Call `create_stub` with:
+3. **Scrape their full profile.** Call `read_webpage(url=profile_url)` using the `profile_url` from the search result. The returned markdown includes a `![Profile Photo](url)` line with a high-resolution (800x800) photo URL, plus their full bio, experience, and education.
+4. **Create the stub.** Call `create_stub` with:
    - `slug` — the LinkedIn vanity ID from search results
    - `title` — their full name
    - `entity_type` — `"person"`
    - `headline` — their current role/title
-   - `image_url` — their profile photo URL (if available from search results)
-   - `summary` — 2-4 sentences about who they are, what they're known for, where they work
-4. **Link in your article.** Write `[[john-smith-4a8b2c1|John Smith]]`.
+   - `image_url` — the high-res photo URL from the `![Profile Photo](url)` line in the scraped markdown
+   - `summary` — 2-4 sentences about who they are, what they're known for, where they work (use the scraped profile for details)
+5. **Link in your article.** Write `[[john-smith-4a8b2c1|John Smith]]`.
 
 `create_stub` is idempotent. If the slug already exists, it returns the existing article. You don't need to check first, but `search_articles` is faster if you just want to confirm existence.
 
@@ -110,19 +111,21 @@ You're writing an article about quantum computing. Here's the full linking flow:
 
 3. Article mentions "John Smith" from MIT:
    a. search_people("John Smith MIT")           → candidates returned
-   b. Pick match: slug = john-smith-4a8b2c1
-   c. create_stub(
+   b. Pick match: slug = john-smith-4a8b2c1, profile_url = https://linkedin.com/in/john-smith-4a8b2c1
+   c. read_webpage("https://linkedin.com/in/john-smith-4a8b2c1")
+      → markdown with ![Profile Photo](https://...800_800...) and full bio
+   d. create_stub(
         slug="john-smith-4a8b2c1",
         title="John Smith",
         entity_type="person",
         headline="Professor of Computer Science at MIT",
-        image_url="https://...",
+        image_url="https://...800_800...",
         summary="John Smith is a computer scientist at MIT's CSAIL.
           His research focuses on quantum error correction and
           fault-tolerant quantum computation. He previously worked
           at IBM Research and holds a PhD from Caltech."
       )
-   d. Write [[john-smith-4a8b2c1|John Smith]] in the article
+   e. Write [[john-smith-4a8b2c1|John Smith]] in the article
 
 4. Article mentions "DeepMind":
    a. search_articles("deepmind")               → nothing found

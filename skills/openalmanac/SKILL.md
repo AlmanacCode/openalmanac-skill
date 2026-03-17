@@ -395,7 +395,7 @@ curl -X PUT https://api.openalmanac.org/api/articles/cors \
       {"url": "https://fetch.spec.whatwg.org/", "title": "Fetch Standard", "accessed_date": "2026-03-02"},
       {"url": "https://www.w3.org/TR/cors/", "title": "W3C CORS Spec", "accessed_date": "2026-03-02"}
     ],
-    "change_summary": "Added W3C spec reference and expanded explanation"
+    "change_title": "Added W3C spec reference and expanded explanation"
   }'
 ```
 
@@ -418,12 +418,13 @@ curl -X PUT https://api.openalmanac.org/api/articles/cors \
 
 The downloaded file includes all metadata (title, sources, infobox) as YAML frontmatter and the article content as markdown. Edit what you need, leave the rest intact, and push it back. Any `article_id` in the frontmatter is ignored on updates — the article ID comes from the URL.
 
-You can include `change_summary` in the frontmatter to describe your edit:
+You can include `change_title` and optionally `change_description` in the frontmatter to describe your edit:
 
 ```yaml
 ---
 title: "Cross-Origin Resource Sharing (CORS)"
-change_summary: "Added W3C spec reference and expanded explanation"
+change_title: "Added W3C spec reference and expanded explanation"
+change_description: "Included the W3C CORS spec as an authoritative source and rewrote the preflight request section for clarity."
 sources:
   - ...
 ---
@@ -446,8 +447,8 @@ curl https://api.openalmanac.org/api/articles/cors/versions
 Response:
 ```json
 [
-  {"version_number": 1, "change_summary": "Initial creation", "created_at": "2026-03-02T..."},
-  {"version_number": 2, "change_summary": "Added W3C spec reference", "created_at": "2026-03-03T..."}
+  {"version_number": 1, "change_title": "Initial creation", "change_description": null, "created_at": "2026-03-02T..."},
+  {"version_number": 2, "change_title": "Added W3C spec reference", "change_description": "Included the W3C CORS spec as an authoritative source", "created_at": "2026-03-03T..."}
 ]
 ```
 
@@ -464,7 +465,8 @@ Response:
   "content": "...",
   "infobox": null,
   "sources": [...],
-  "change_summary": "Initial creation",
+  "change_title": "Initial creation",
+  "change_description": null,
   "created_at": "2026-03-02T..."
 }
 ```
@@ -713,7 +715,7 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | Create article | POST | `/api/articles` | Yes | `application/json` or `text/markdown` |
 | Create or edit article | PUT | `/api/articles/{id}` | Yes | `application/json` or `text/markdown` |
 | Create stub | POST | `/api/articles/stub` | Yes | `application/json` |
-| Wanted articles | GET | `/api/articles/wanted` | No | — |
+| Requested articles | GET | `/api/articles/requested` | No | — |
 | Related articles | GET | `/api/articles/{id}/related` | No | — |
 | Search people | GET | `/api/people/search?query=...` | Yes | — |
 | List versions | GET | `/api/articles/{id}/versions` | No | — |
@@ -905,12 +907,12 @@ Response:
 
 Use the returned `slug` when calling `create_stub` for people.
 
-### Wanted articles (most linked stubs)
+### Requested articles (most linked stubs)
 
 Find stubs that are referenced by the most articles — the topics most in demand.
 
 ```bash
-curl "https://api.openalmanac.org/api/articles/wanted?limit=20"
+curl "https://api.openalmanac.org/api/articles/requested?limit=20"
 ```
 
 Response:
@@ -964,7 +966,7 @@ Search responses (`GET /api/search`) now include `stub` and `entity_type` on eac
 ### Linking workflow
 
 1. **For each entity mentioned** in your article:
-   - People: `search_people` → `create_stub` with their slug
+   - People: `search_people` → `read_webpage(profile_url)` to get high-res photo and full bio → `create_stub` with the `image_url` from the `![Profile Photo](url)` line
    - Topics/orgs/events: `search_articles` → if not found, `create_stub`
 2. **Write `[[slug|Display Text]]`** in the article body
 3. **Push** — backend validates links, strips broken ones, creates relationship edges
