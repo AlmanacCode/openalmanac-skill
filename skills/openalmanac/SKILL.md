@@ -318,7 +318,7 @@ Response:
 
 **Rate limit:** 10 requests per minute.
 
-Use images inline in articles with `![Descriptive caption](image_url)`. Place the image on the line before the paragraph it illustrates — it floats right on desktop. Every image must have a descriptive caption. External image URLs are auto-persisted on push.
+Use images inline in articles with `![Caption](image_url "position")`. Position options: `"right"` (default if omitted), `"left"`, `"center"`. The caption (alt text) is displayed below the image as a visible figcaption — make it descriptive. External image URLs are auto-persisted on push.
 
 ### Research workflow
 
