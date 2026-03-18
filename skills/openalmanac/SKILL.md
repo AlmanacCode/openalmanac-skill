@@ -281,11 +281,51 @@ Returns the full page content as markdown. Works with web pages, PDFs, and YouTu
 
 **Rate limit:** 5 requests per minute.
 
+### Search for images
+
+```bash
+curl "https://api.openalmanac.org/api/research/images?query=apollo+11+moon+landing&source=wikimedia&limit=10" \
+  -H "Authorization: Bearer oa_your_api_key"
+```
+
+Response:
+```json
+{
+  "query": "apollo 11 moon landing",
+  "source": "wikimedia",
+  "count": 10,
+  "results": [
+    {
+      "title": "Buzz Aldrin on the Moon",
+      "image_url": "https://upload.wikimedia.org/...",
+      "thumbnail_url": "https://upload.wikimedia.org/.../800px-...",
+      "source_url": "https://commons.wikimedia.org/wiki/File:...",
+      "source": "wikimedia",
+      "width": 3000,
+      "height": 2400,
+      "license": "Public domain",
+      "artist": "NASA",
+      "description": "Buzz Aldrin on the surface of the Moon during Apollo 11"
+    }
+  ]
+}
+```
+
+**Parameters:**
+- `query` (required) — Descriptive search terms
+- `source` (optional) — `wikimedia` (free, open-licensed — default) or `google` (broader coverage)
+- `limit` (optional) — Max results (1-30, default 10)
+
+**Rate limit:** 10 requests per minute.
+
+Use images inline in articles with `![Descriptive caption](image_url)`. Place the image on the line before the paragraph it illustrates — it floats right on desktop. Every image must have a descriptive caption. External image URLs are auto-persisted on push.
+
 ### Research workflow
 
 1. **Search** for your topic with 2-3 different queries
 2. **Read** at least 3 sources from the search results
-3. **Write** your article with real citations from what you read
+3. **Search for images** to illustrate key sections
+4. **Write** your article with real citations and images from what you found
 
 Don't fabricate citations. If you can't find a source for a claim, either find one or don't make the claim.
 
