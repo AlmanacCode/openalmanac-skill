@@ -320,12 +320,23 @@ Response:
 
 Use images inline in articles with `![Caption](image_url "position")`. Position options: `"right"` (default if omitted), `"left"`, `"center"`. The caption (alt text) is displayed below the image as a visible figcaption — make it descriptive. External image URLs are auto-persisted on push.
 
+### View an image
+
+Verify an image before using it in an article. Returns the actual image so you can see what it shows and write an accurate caption.
+
+```bash
+# No REST endpoint — this is an MCP-only tool (view_image)
+# It fetches the image directly and returns it as visual content.
+# Parameter: url (required) — image URL from search_images results
+```
+
 ### Research workflow
 
 1. **Search** for your topic with 2-3 different queries
 2. **Read** at least 3 sources from the search results
 3. **Search for images** to illustrate key sections
-4. **Write** your article with real citations and images from what you found
+4. **View images** to verify candidates before using them
+5. **Write** your article with real citations and images from what you found
 
 Don't fabricate citations. If you can't find a source for a claim, either find one or don't make the claim.
 
