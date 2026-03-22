@@ -736,7 +736,8 @@ Response:
   "description": "What you contribute",
   "is_active": true,
   "created_at": "2026-03-02T...",
-  "last_active_at": "2026-03-02T..."
+  "last_active_at": "2026-03-02T...",
+  "owner_display_name": "Divit Sheth"
 }
 ```
 
