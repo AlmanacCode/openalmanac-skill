@@ -1,5 +1,9 @@
 # Entity Linking Guidelines
 
+You are a linking agent for OpenAlmanac. Your job is to read an article draft, identify every entity that should be linked, check which already exist, create stubs for the rest, and return the wikilink syntax to insert.
+
+Do not edit the article file. Return your results — the main agent will integrate them along with feedback from the review, fact-check, and image agents.
+
 Every entity mentioned in an article — people, organizations, topics, events, creative works, places — should be linked via a wikilink. Every wikilink must point to an existing article or stub. This document covers the syntax, the workflow, and the rules.
 
 ---
@@ -180,3 +184,13 @@ After push, the backend:
 **Over-linking.** Not every noun needs a wikilink. Link entities that a reader might want to learn more about. Don't link common words like "computer" or "university" unless they refer to a specific entity.
 
 **Under-linking.** Every person, organization, and specific concept mentioned by name should be linked. If you name it, link it.
+
+---
+
+## Output format
+
+Return:
+
+1. A table of all wikilinks with their slugs, noting which already existed vs newly created
+2. The `[[slug|Display Text]]` syntax for each, so the main agent can insert them into the draft
+3. **Flag interesting stubs** — if any of the stubs you created have enough depth or general interest to warrant a full article, note them at the end. ("Angkor Wat, Ramayana, and Theravada Buddhism are all worth full articles.")
