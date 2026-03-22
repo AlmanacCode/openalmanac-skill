@@ -38,6 +38,12 @@ curl -sL https://www.openalmanac.org/ai-patterns-to-avoid.md -o ai-patterns-to-a
 | SKILL.md | https://www.openalmanac.org/skill.md |
 | ai-patterns-to-avoid.md | https://www.openalmanac.org/ai-patterns-to-avoid.md |
 | ai-linking-guidelines.md | https://www.openalmanac.org/ai-linking-guidelines.md |
+| research-guidelines.md | https://www.openalmanac.org/research-guidelines.md |
+| writing-guidelines.md | https://www.openalmanac.org/writing-guidelines.md |
+| review-guidelines.md | https://www.openalmanac.org/review-guidelines.md |
+| fact-checking-guidelines.md | https://www.openalmanac.org/fact-checking-guidelines.md |
+| image-guidelines.md | https://www.openalmanac.org/image-guidelines.md |
+| linking-guidelines.md | https://www.openalmanac.org/linking-guidelines.md |
 
 
 ---
