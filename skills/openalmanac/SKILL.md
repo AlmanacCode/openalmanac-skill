@@ -82,7 +82,7 @@ You're set up. Now write something.
 Your user asked you to contribute to OpenAlmanac. Here's the workflow:
 
 1. **Pick a topic** — ask your user what they want to write about, or suggest something based on what you've been working on together
-2. **Search first** — check if the article already exists (`GET /api/search?query=...`). If it does, improve it instead of creating a duplicate
+2. **Search first** — check if the article already exists (`POST /api/search/batch`). If it does, improve it instead of creating a duplicate
 3. **Research** — use your own tools or the Research API below to gather sources
 4. **Write** — draft the article with citations. Every claim needs a `[N]` marker linking to a real source
 5. **Submit** — create or update the article via the API. Your user gets credit for the contribution
@@ -133,13 +133,61 @@ Response:
 }
 ```
 
+### Batch read articles
+
+Read multiple articles at once. No authentication needed.
+
+```bash
+curl -X POST https://api.openalmanac.org/api/articles/batch \
+  -H "Content-Type: application/json" \
+  -d '{"slugs": ["alan-turing", "machine-learning", "nonexistent-slug"]}'
+```
+
+Response:
+```json
+{
+  "results": [
+    {
+      "slug": "alan-turing",
+      "title": "Alan Turing",
+      "content": "Alan Mathison Turing was born on 23 June 1912...[1]",
+      "sources": [{"url": "https://...", "title": "...", "accessed_date": "2024-06-10"}],
+      "entity_type": "person",
+      "stub": false,
+      "error": null
+    },
+    {
+      "slug": "machine-learning",
+      "title": "Machine Learning",
+      "content": "Machine learning is a subset of artificial intelligence...[1]",
+      "sources": [...],
+      "entity_type": "topic",
+      "stub": false,
+      "error": null
+    },
+    {
+      "slug": "nonexistent-slug",
+      "title": null,
+      "content": null,
+      "sources": [],
+      "entity_type": null,
+      "stub": false,
+      "error": "not_found"
+    }
+  ]
+}
+```
+
+**Parameters:**
+- `slugs` (required) — Array of article slugs to read (1-20)
+
 ### Get as markdown
 
 ```bash
 curl https://api.openalmanac.org/api/articles/alan-turing?format=md
 ```
 
-Returns the article as a markdown file with YAML frontmatter containing all metadata (title, sources, infobox). This is the format you can download, edit, and push back. See [Edit with markdown](#edit-with-markdown) below.
+Returns the article as a markdown file with YAML frontmatter containing all metadata (title, sources, infobox). This is the format you can download, edit, and publish back. See [Edit with markdown](#edit-with-markdown) below.
 
 ### Browse all articles
 
@@ -168,7 +216,48 @@ Response:
 
 ## Search
 
-Find articles with hybrid search (keyword + semantic). No authentication needed.
+Find articles with hybrid search (keyword + semantic). No authentication needed. Supports batch queries.
+
+### Batch search (recommended)
+
+```bash
+curl -X POST https://api.openalmanac.org/api/search/batch \
+  -H "Content-Type: application/json" \
+  -d '{"queries": ["artificial intelligence", "alan turing"], "limit": 5}'
+```
+
+Response:
+```json
+{
+  "results": [
+    {
+      "query": "artificial intelligence",
+      "results": [
+        {
+          "article_id": "alan-turing",
+          "title": "Alan Turing",
+          "snippet": "Alan Mathison Turing was born on 23 June 1912 in Maida Vale, London...",
+          "image_url": "https://example.com/turing.jpg",
+          "headline": "Mathematician & Computer Scientist",
+          "stub": false,
+          "entity_type": "person"
+        }
+      ]
+    },
+    {
+      "query": "alan turing",
+      "results": [...]
+    }
+  ]
+}
+```
+
+**Parameters:**
+- `queries` (required) — Array of search terms (1-20)
+- `limit` (optional) — Max results per query (1-50, default 5)
+- `include_stubs` (optional) — Include stub articles in results (default true)
+
+### Single search
 
 ```bash
 curl "https://api.openalmanac.org/api/search?query=artificial+intelligence&limit=10"
@@ -289,59 +378,69 @@ Returns the full page content as markdown. Works with web pages, PDFs, and YouTu
 
 ### Search for images
 
+Supports batch queries. **Requires authentication.**
+
 ```bash
-curl "https://api.openalmanac.org/api/research/images?query=apollo+11+moon+landing&source=wikimedia&limit=10" \
-  -H "Authorization: Bearer oa_your_api_key"
+curl -X POST https://api.openalmanac.org/api/research/images/batch \
+  -H "Authorization: Bearer oa_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"queries": ["apollo 11 moon landing", "nasa mission control"], "source": "wikimedia", "limit": 5}'
 ```
 
 Response:
 ```json
 {
-  "query": "apollo 11 moon landing",
-  "source": "wikimedia",
-  "count": 10,
   "results": [
     {
-      "title": "Buzz Aldrin on the Moon",
-      "image_url": "https://upload.wikimedia.org/...",
-      "thumbnail_url": "https://upload.wikimedia.org/.../800px-...",
-      "source_url": "https://commons.wikimedia.org/wiki/File:...",
-      "source": "wikimedia",
-      "width": 3000,
-      "height": 2400,
-      "license": "Public domain",
-      "artist": "NASA",
-      "description": "Buzz Aldrin on the surface of the Moon during Apollo 11"
+      "query": "apollo 11 moon landing",
+      "results": [
+        {
+          "title": "Buzz Aldrin on the Moon",
+          "image_url": "https://upload.wikimedia.org/...",
+          "thumbnail_url": "https://upload.wikimedia.org/.../800px-...",
+          "source_url": "https://commons.wikimedia.org/wiki/File:...",
+          "source": "wikimedia",
+          "width": 3000,
+          "height": 2400,
+          "license": "Public domain",
+          "artist": "NASA",
+          "description": "Buzz Aldrin on the surface of the Moon during Apollo 11"
+        }
+      ]
+    },
+    {
+      "query": "nasa mission control",
+      "results": [...]
     }
   ]
 }
 ```
 
 **Parameters:**
-- `query` (required) — Descriptive search terms
+- `queries` (required) — Array of descriptive search terms (1-10)
 - `source` (optional) — `wikimedia` (free, open-licensed — default) or `google` (broader coverage)
-- `limit` (optional) — Max results (1-30, default 10)
+- `limit` (optional) — Max results per query (1-10, default 5)
 
 **Rate limit:** 10 requests per minute.
 
-Use images inline in articles with `![Caption](image_url "position")`. Position options: `"right"` (default if omitted), `"left"`, `"center"`. The caption (alt text) is displayed below the image as a visible figcaption — make it descriptive. External image URLs are auto-persisted on push.
+Use images inline in articles with `![Caption](image_url "position")`. Position options: `"right"` (default if omitted), `"left"`, `"center"`. The caption (alt text) is displayed below the image as a visible figcaption — make it descriptive. External image URLs are auto-persisted on publish.
 
-### View an image
+### View images
 
-Verify an image before using it in an article. Returns the actual image so you can see what it shows and write an accurate caption.
+Verify images before using them in an article. Returns each image so you can see what it shows and write accurate captions. Accepts multiple URLs.
 
 ```bash
-# No REST endpoint — this is an MCP-only tool (view_image)
-# It fetches the image directly and returns it as visual content.
-# Parameter: url (required) — image URL from search_images results
+# No REST endpoint — this is an MCP-only tool (view_images)
+# It fetches each image directly and returns them as visual content.
+# Parameter: urls (required) — array of image URLs from search_images results (1-10)
 ```
 
 ### Research workflow
 
-1. **Search** for your topic with 2-3 different queries
+1. **Search** for your topic with 2-3 different queries (batch them in one `search_images` call)
 2. **Read** at least 3 sources from the search results
-3. **Search for images** to illustrate key sections
-4. **View images** to verify candidates before using them
+3. **Search for images** to illustrate key sections (batch queries in one `search_images` call)
+4. **View images** to verify candidates before using them (batch URLs in one `view_images` call)
 5. **Write** your article with real citations and images from what you found
 
 Don't fabricate citations. If you can't find a source for a claim, either find one or don't make the claim.
@@ -458,7 +557,7 @@ curl -X PUT https://api.openalmanac.org/api/articles/cors \
 
 ### Edit with markdown
 
-The recommended workflow for editing existing articles: download, edit the file, push it back.
+The recommended workflow for editing existing articles: download, edit the file, publish it back.
 
 ```bash
 # 1. Download the article as a markdown file
@@ -466,14 +565,14 @@ curl "https://api.openalmanac.org/api/articles/cors?format=md" -o cors.md
 
 # 2. Edit the file with your tools (add content, fix sources, etc.)
 
-# 3. Push it back
+# 3. Publish it back
 curl -X PUT https://api.openalmanac.org/api/articles/cors \
   -H "Authorization: Bearer oa_your_api_key" \
   -H "Content-Type: text/markdown" \
   --data-binary @cors.md
 ```
 
-The downloaded file includes all metadata (title, sources, infobox) as YAML frontmatter and the article content as markdown. Edit what you need, leave the rest intact, and push it back. Any `article_id` in the frontmatter is ignored on updates — the article ID comes from the URL.
+The downloaded file includes all metadata (title, sources, infobox) as YAML frontmatter and the article content as markdown. Edit what you need, leave the rest intact, and publish it back. Any `article_id` in the frontmatter is ignored on updates — the article ID comes from the URL.
 
 You can include `change_title` and optionally `change_description` in the frontmatter to describe your edit:
 
@@ -766,13 +865,16 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | List articles | GET | `/api/articles` | No | — |
 | Get article (JSON) | GET | `/api/articles/{id}` | No | — |
 | Get article (markdown) | GET | `/api/articles/{id}?format=md` | No | — |
-| Search | GET | `/api/search?query=...&community=...` | No | — |
+| Batch read articles | POST | `/api/articles/batch` | No | `application/json` |
+| Batch search | POST | `/api/search/batch` | No | `application/json` |
+| Search (single) | GET | `/api/search?query=...&community=...` | No | — |
 | Suggest | GET | `/api/suggest?query=...&community=...` | No | — |
 | Search web | GET | `/api/research/search?query=...` | Yes | — |
 | Read URL | GET | `/api/research/read?url=...` | Yes | — |
+| Batch image search | POST | `/api/research/images/batch` | Yes | `application/json` |
 | Create article | POST | `/api/articles` | Yes | `application/json` or `text/markdown` |
 | Create or edit article | PUT | `/api/articles/{id}` | Yes | `application/json` or `text/markdown` |
-| Create stub | POST | `/api/articles/stub` | Yes | `application/json` |
+| Create stubs (batch) | POST | `/api/articles/stubs` | Yes | `application/json` |
 | Requested articles | GET | `/api/articles/requested` | No | — |
 | Related articles | GET | `/api/articles/{id}/related` | No | — |
 | Search people | GET | `/api/people/search?query=...` | Yes | — |
@@ -878,7 +980,7 @@ Response (always 200 if the article exists, 404 if it doesn't):
 
 ### Auto-link workflow
 
-After every `push`, follow this flow to connect your article with relevant communities:
+After every `publish`, follow this flow to connect your article with relevant communities:
 
 1. Call `search_communities` (no query) to get all communities
 2. Analyze the article's content, title, and topics against community names and descriptions
@@ -894,31 +996,41 @@ Articles can link to each other using `[[slug|Display Text]]` wikilink syntax. E
 
 ### Wikilink syntax
 
-Use `[[slug|Display Text]]` in the article markdown body. The slug must match an existing article or stub — links to non-existent slugs are stripped to plain text on push.
+Use `[[slug|Display Text]]` in the article markdown body. The slug must match an existing article or stub — links to non-existent slugs are stripped to plain text on publish.
 
 ```markdown
 She studied [[reinforcement-learning|reinforcement learning]] at [[mit|MIT]]
 under the supervision of [[john-smith-4a8b2c1|John Smith]].
 ```
 
-### Create a stub
+### Create stubs (batch)
 
-Stubs are placeholder articles for entities that don't have a full article yet. **Requires authentication.**
+Stubs are placeholder articles for entities that don't have a full article yet. Create up to 50 at once. **Requires authentication.**
 
 ```bash
-curl -X POST https://api.openalmanac.org/api/articles/stub \
+curl -X POST https://api.openalmanac.org/api/articles/stubs \
   -H "Authorization: Bearer oa_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
-    "slug": "reinforcement-learning",
-    "title": "Reinforcement Learning",
-    "entity_type": "topic",
-    "headline": "Branch of machine learning focused on sequential decision-making",
-    "summary": "Reinforcement learning is a branch of machine learning where agents learn to make decisions by interacting with an environment and receiving rewards or penalties."
+    "stubs": [
+      {
+        "slug": "reinforcement-learning",
+        "title": "Reinforcement Learning",
+        "entity_type": "topic",
+        "headline": "Branch of machine learning focused on sequential decision-making",
+        "summary": "Reinforcement learning is a branch of machine learning where agents learn to make decisions by interacting with an environment and receiving rewards or penalties."
+      },
+      {
+        "slug": "mit",
+        "title": "Massachusetts Institute of Technology",
+        "entity_type": "organization",
+        "headline": "Private research university in Cambridge, Massachusetts"
+      }
+    ]
   }'
 ```
 
-**Fields:**
+**Each stub has:**
 - `slug` (required) — Kebab-case identifier. Same rules as `article_id`.
 - `title` (required) — Display title (max 500 chars)
 - `entity_type` (optional) — One of: `person`, `organization`, `topic`, `event`, `creative_work`, `place`
@@ -926,13 +1038,18 @@ curl -X POST https://api.openalmanac.org/api/articles/stub \
 - `image_url` (optional) — Image URL for the entity
 - `summary` (optional) — 2-4 sentence summary. Becomes the stub page content.
 
-**Idempotent:** If the slug already exists, returns the existing article/stub with status `article_exists` or `stub_exists` (HTTP 200). New stubs return HTTP 201.
+**Parameters:**
+- `stubs` (required) — Array of stubs to create (1-50)
+
+**Idempotent:** If a slug already exists, its result reports status `article_exists` or `stub_exists`. New stubs report `created`.
 
 Response:
 ```json
 {
-  "status": "created",
-  "article": { "article_id": "reinforcement-learning", "title": "...", "stub": true, ... }
+  "results": [
+    {"slug": "reinforcement-learning", "status": "created", "error": null},
+    {"slug": "mit", "status": "stub_exists", "error": null}
+  ]
 }
 ```
 
@@ -963,7 +1080,7 @@ Response:
 }
 ```
 
-Use the returned `slug` when calling `create_stub` for people.
+Use the returned `slug` when calling `create_stubs` for people.
 
 ### Requested articles (most linked stubs)
 
@@ -1024,10 +1141,10 @@ Search responses (`GET /api/search`) now include `stub` and `entity_type` on eac
 ### Linking workflow
 
 1. **For each entity mentioned** in your article:
-   - People: `search_people` → `read_webpage(profile_url)` to get high-res photo and full bio → `create_stub` with the `image_url` from the `![Profile Photo](url)` line
-   - Topics/orgs/events: `search_articles` → if not found, `create_stub`
+   - People: `search_people` → `read_webpage(profile_url)` to get high-res photo and full bio → `create_stubs` with the `image_url` from the `![Profile Photo](url)` line
+   - Topics/orgs/events: `search_articles` → if not found, `create_stubs`
 2. **Write `[[slug|Display Text]]`** in the article body
-3. **Push** — backend validates links, strips broken ones, creates relationship edges
+3. **Publish** — backend validates links, strips broken ones, creates relationship edges
 
 ---
 
