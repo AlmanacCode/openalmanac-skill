@@ -48,7 +48,7 @@ This is editorial commentary attached to an etymology. The word origin doesn't "
 
 Fixed:
 
-> The name Bakunutan was hispanized to Bacnotan during the Spanish colonial period. The modification appears in official documents preserved in the National Archives in Manila.[3]
+> The name Bakunutan was hispanized to Bacnotan during the Spanish colonial period. The modification appears in official documents preserved in the National Archives in Manila.[@archives-bacnotan-records]
 
 When writing about biology, ecology, places, or cultural heritage, this pattern manifests as overemphasis on ecosystem connections, conservation importance, or cultural significance — even when those connections are tenuous or generic.
 
@@ -79,7 +79,7 @@ Bad:
 
 Fixed:
 
-> In 2025, the Federation was invited to the Asia Pickleball Summit.[4]
+> In 2025, the Federation was invited to the Asia Pickleball Summit.[@dawn-pickleball-summit]
 
 The fix removes the interpretive clause entirely. The fact speaks for itself.
 
@@ -109,7 +109,7 @@ Bad:
 
 Fixed:
 
-> Alamata Raya Kobo is a town in the Amhara region of Ethiopia, located in the Gonder area.[1]
+> Alamata Raya Kobo is a town in the Amhara region of Ethiopia, located in the Gonder area.[@britannica-alamata-raya]
 
 One sentence replaces an entire promotional paragraph — and contains more useful information (the actual location).
 
@@ -150,7 +150,7 @@ Bad: "Sharma has held roles applying machine learning in finance and geographic 
 
 What roles? What did he build? When? Either provide specifics or don't mention it.
 
-Fixed: "At DronaMaps, Sharma built a geocoding server based on OpenStreetMap.[3]"
+Fixed: "At DronaMaps, Sharma built a geocoding server based on OpenStreetMap.[@dronamaps-geocoding]"
 
 **Evaluative connectors** — editorial commentary masquerading as transitions:
 
@@ -228,7 +228,7 @@ Words flagged in that passage: intricate, tapestry (twice), additionally (twice)
 
 Fixed:
 
-> Somali cuisine draws on Arab, Indian, and Italian influences.[1] Camel meat and milk are staple foods.[2] Pasta and lasagne entered the diet during the Italian colonial period and remain common, particularly in the south.[3] Somali merchants were among the first to export coffee beans.[4]
+> Somali cuisine draws on Arab, Indian, and Italian influences.[@britannica-somali-cuisine] Camel meat and milk are staple foods.[@fao-somali-livestock] Pasta and lasagne entered the diet during the Italian colonial period and remain common, particularly in the south.[@guardian-somali-food] Somali merchants were among the first to export coffee beans.[@smithsonian-coffee-origins]
 
 Four sentences. Four facts. Four citations. No filler.
 
@@ -261,7 +261,7 @@ Bad: "Not only a professor, but also a researcher."
 
 Being a professor and a researcher aren't contrasting activities. Use a straightforward statement.
 
-Fixed: "Smith is a professor at MIT and has published research on X.[1][2]"
+Fixed: "Smith is a professor at MIT and has published research on X.[@mit-faculty-smith][@nature-smith-research]"
 
 ### Rule of three
 
@@ -317,7 +317,7 @@ Bad:
 
 Discuss publications narratively — what question the research addressed, what was found, why it matters.
 
-Fixed: "In 2023, Mehta and Shao proposed a greedy agglomerative framework for clustered federated learning, addressing heterogeneous data distributions across manufacturing sites.[9]"
+Fixed: "In 2023, Mehta and Shao proposed a greedy agglomerative framework for clustered federated learning, addressing heterogeneous data distributions across manufacturing sites.[@ieee-mehta-federated]"
 
 ### Repetition across sections
 
@@ -325,8 +325,8 @@ The same fact appearing in multiple sections with no new detail.
 
 Bad:
 
-> Lead: "joined MIT in 2015 as Assistant Professor [1]"
-> Career section: "In 2015, Smith joined MIT as Assistant Professor [1]"
+> Lead: "joined MIT in 2015 as Assistant Professor [@mit-faculty-smith]"
+> Career section: "In 2015, Smith joined MIT as Assistant Professor [@mit-faculty-smith]"
 
 Each section should add new information. If you stated a fact in the lead, the later section should expand on it — not restate it.
 
@@ -334,13 +334,13 @@ Each section should add new information. If you stated a fact in the lead, the l
 
 Citations go after punctuation, not before. The period (or comma, or other mark) closes the sentence; the citation attaches to it.
 
-Bad: `...preserved in the National Archives in Manila [3].`
+Bad: `...preserved in the National Archives in Manila [@archives-bacnotan-records].`
 
-Fixed: `...preserved in the National Archives in Manila.[3]`
+Fixed: `...preserved in the National Archives in Manila.[@archives-bacnotan-records]`
 
-Bad: `...staple foods [2]. Pasta and lasagne...`
+Bad: `...staple foods [@fao-somali-livestock]. Pasta and lasagne...`
 
-Fixed: `...staple foods.[2] Pasta and lasagne...`
+Fixed: `...staple foods.[@fao-somali-livestock] Pasta and lasagne...`
 
 ### Unnecessary tables
 

@@ -9,7 +9,7 @@ Read the article draft at the file path provided to you. The sources are listed 
 ## What to check
 
 ### Misattributed citations
-This is the most common problem. A claim has a citation marker [N] but the source doesn't actually say what the article claims. For each cited claim:
+This is the most common problem. A claim has a citation marker [@key] but the source doesn't actually say what the article claims. For each cited claim:
 1. Fetch the source using read_webpage
 2. Find the relevant passage
 3. Verify the article's claim matches what the source actually says
@@ -55,7 +55,7 @@ End with a summary table:
 
 | # | Type | Severity | Location | Description |
 |---|------|----------|----------|-------------|
-| 1 | Misattributed | High | Section X | Claim Y cited to [N] but source doesn't say this |
+| 1 | Misattributed | High | Section X | Claim Y cited to [@key] but source doesn't say this |
 | 2 | Uncited | Medium | Section Z | Specific date has no citation |
 
 Severity levels:

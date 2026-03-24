@@ -9,13 +9,14 @@ Before writing a single sentence of body text, list every source you gathered du
 
 ```yaml
 sources:
-  - url: https://example.com/article
+  - key: example-article-title
+    url: https://example.com/article
     title: "Article Title — Publication Name"
     accessed_date: "2025-01-15"
 ```
 
 ### Write a pure text draft
-The first draft should be pure prose with [N] citation markers. No wikilinks (`[[slug|Display Text]]`), no images (`![caption](url)`), no stub creation. Just text and citations. The linking and image agents will handle the rest after the draft is complete.
+The first draft should be pure prose with [@key] citation markers. No wikilinks (`[[slug|Display Text]]`), no images (`![caption](url)`), no stub creation. Just text and citations. The linking and image agents will handle the rest after the draft is complete.
 
 ## Article structure
 
@@ -43,10 +44,12 @@ If a sentence doesn't contain a fact, delete it. Commentary, interpretation, and
 
 ## Citations
 
-- Mark claims with [N] after punctuation: `...in 1956.[4]`
-- Number sequentially starting at [1]
-- Every source in the sources list must be referenced at least once in the body
-- Every [N] marker in the body must have a matching source in the frontmatter
+- Mark claims with [@key] after punctuation: `...in 1956.[@britannica-history-ai]`
+- Keys must be kebab-case with at least one hyphen (e.g. 'nytimes-climate-report', 'who-malaria-2024')
+- Generate keys BibTeX-style: {domain}-{title-words} (e.g. 'arxiv-attention-is-all')
+- Every source in the sources list must be referenced at least once in the body with [@key]
+- Every [@key] marker in the body must have a matching source key in the frontmatter
+- Display numbers are computed automatically from first-appearance order — just use the keys
 - Cite the source that actually supports the claim — not the source you happened to be reading when you wrote the sentence. Misattributed citations are the most common problem in AI-written articles.
 
 ## Tone
