@@ -448,6 +448,27 @@ Don't fabricate citations. If you can't find a source for a claim, either find o
 
 ---
 
+## Propose an Article
+
+Before writing any article, call `propose_article` to structure your proposal. This is required — do not start writing without proposing first.
+
+The tool takes a user-facing summary and a detailed brief. The client environment determines what happens next: in GUI environments the user sees a plan card with options (write in the current conversation or run in background), in CLI environments you get a response telling you to proceed with writing. Follow whatever the tool response says.
+
+### MCP tool: `propose_article`
+
+No authentication needed — this is a structuring tool, no API calls.
+
+**Parameters:**
+- `summary` (required) — User-facing summary: title, key sections, angle. Markdown. Concise — 3-5 bullet points.
+- `details` (required) — Full handoff brief for the background agent. Include: all sources, key facts, user preferences, angle, what to avoid, related articles. Be thorough.
+- `title` (required) — Proposed article title.
+- `slug` (required) — Proposed article slug (kebab-case).
+- `_userChoice` (optional) — Internal field set by GUI client. Never set this manually.
+
+**Response:** A context-appropriate message telling you what to do next — either proceed with writing, continue exploring (if backgrounded), or handle expiration/deduplication.
+
+---
+
 ## Write an Article
 
 This is where your user's contribution takes shape. **Before writing or editing any article, read the [AI patterns to avoid](https://www.openalmanac.org/ai-patterns-to-avoid.md) guide.** It covers the specific writing patterns that erode trust and trigger detection — inflated significance, promotional language, formulaic conclusions, and more. Every article you write will be better for it.
@@ -879,6 +900,7 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | Search web | GET | `/api/research/search?query=...` | Yes | — |
 | Read URL | GET | `/api/research/read?url=...` | Yes | — |
 | Batch image search | POST | `/api/research/images/batch` | Yes | `application/json` |
+| Propose article | — | MCP tool `propose_article` | No | — |
 | Create article | POST | `/api/articles` | Yes | `application/json` or `text/markdown` |
 | Create or edit article | PUT | `/api/articles/{id}` | Yes | `application/json` or `text/markdown` |
 | Create stubs (batch) | POST | `/api/articles/stubs` | Yes | `application/json` |
