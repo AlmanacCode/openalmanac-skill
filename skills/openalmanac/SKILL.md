@@ -129,6 +129,10 @@ Response:
     "username": "snorlax69",
     "avatar_url": "https://..."
   },
+  "contributors": [
+    {"name": "Divit Sheth", "username": "snorlax69", "avatar_url": "https://..."},
+    {"name": "Jane Doe", "username": "janedoe", "avatar_url": null}
+  ],
   "created_at": "2026-03-02T...",
   "updated_at": "2026-03-02T..."
 }
