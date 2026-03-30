@@ -203,6 +203,8 @@ curl "https://api.openalmanac.org/api/articles?limit=50&offset=0"
 **Parameters:**
 - `limit` (optional) — Results per page (1-200, default 50)
 - `offset` (optional) — Number of results to skip (default 0)
+- `sort` (optional) — `recent` (default), `random`, or `popular` (sorts by reference count descending — most referenced first)
+- `stubs_only` (optional, boolean) — When `true`, returns only stub articles (default `false`)
 
 Response:
 ```json
@@ -211,8 +213,8 @@ Response:
   "limit": 50,
   "offset": 0,
   "articles": [
-    {"article_id": "alan-turing", "title": "Alan Turing", "updated_at": "..."},
-    {"article_id": "quantum-mechanics", "title": "Quantum Mechanics", "updated_at": "..."}
+    {"article_id": "alan-turing", "title": "Alan Turing", "updated_at": "...", "reference_count": 12},
+    {"article_id": "quantum-mechanics", "title": "Quantum Mechanics", "updated_at": "...", "reference_count": 5}
   ]
 }
 ```
