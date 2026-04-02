@@ -22,6 +22,8 @@ Slug first, pipe, display text. The slug is the article ID. The display text is 
 
 Links to non-existent slugs are stripped to plain text on push. If you write `[[nonexistent-slug|some text]]` and the slug doesn't exist, the reader sees "some text" with no link. Always create the stub first.
 
+**Link every instance, not just the first.** Link ALL occurrences of an entity in the article, not just the first mention. If "Theravada Buddhism" appears five times, all five should be wikilinked as `[[theravada-buddhism|Theravada Buddhism]]`. Readers may land in the middle of an article — every mention should be navigable.
+
 ---
 
 ## Stub Creation
@@ -42,6 +44,17 @@ Bad stub summary:
 Good stub summary:
 
 > DeepMind is a British artificial intelligence research laboratory founded in 2010 by Demis Hassabis, Shane Legg, and Mustafa Suleyman. Acquired by Google in 2014, it is known for developing AlphaGo, AlphaFold, and foundational work in deep reinforcement learning.
+
+### Batching stub creation
+
+Make multiple `create_stubs` calls, grouped by entity type. Don't cram every entity into a single call. For example:
+
+1. One `create_stubs` call for all people
+2. One `create_stubs` call for all organizations
+3. One `create_stubs` call for all topics
+4. One `create_stubs` call for all creative works, events, and places
+
+This keeps each call focused, makes errors easier to spot, and avoids hitting payload limits.
 
 ---
 
@@ -65,20 +78,38 @@ Use the most recognizable name. Prefer `mit` over `massachusetts-institute-of-te
 
 Every stub has an `entity_type` field. Use one of:
 
-- `person` — individual people
-- `organization` — companies, universities, research labs, governments, nonprofits
+- `person` — individual humans
+- `organization` — companies, universities, research labs, governments, nonprofits, platforms, tools (TikTok = organization, ByteDance = organization, Claude Code = organization product, NOT creative_work)
 - `topic` — fields of study, concepts, technologies, methods
 - `event` — conferences, wars, historical events, product launches
-- `creative_work` — papers, books, films, albums, software projects
+- `creative_work` — books, papers, films, albums, artworks, songs — things that ARE the creative output itself. A platform like TikTok is not a creative work. A software tool is not a creative work. A novel or a film is.
 - `place` — cities, countries, regions, landmarks
+
+### Disambiguation: organization vs creative_work
+
+The most common mistake is classifying platforms and tools as `creative_work`. The test is simple: **is this thing the creative output itself, or is it a product/platform/tool built by an organization?**
+
+| Entity | Correct type | Why |
+|--------|-------------|-----|
+| TikTok | `organization` | It's a platform/product, not a creative output |
+| ByteDance | `organization` | Company |
+| Claude Code | `topic` | Software tool — a technology, not an organization or creative work |
+| GPT-4 | `topic` | AI model — a technology, not an organization (OpenAI is the organization) |
+| Spotify | `organization` | Platform |
+| React | `topic` | Software framework — a technology, not an organization |
+| *Attention Is All You Need* | `creative_work` | It's a research paper — the creative output itself |
+| *The Great Gatsby* | `creative_work` | Novel |
+| *Bohemian Rhapsody* (the song) | `creative_work` | Song |
 
 ---
 
 ## Workflow: People
 
-People use LinkedIn vanity IDs as slugs for guaranteed uniqueness.
+People use LinkedIn vanity IDs as slugs for guaranteed uniqueness. The LinkedIn-backed slug is the canonical identifier for people.
 
-1. **Search for the person.** Call `search_people` with their name and affiliation (e.g. "John Smith MIT"). This searches LinkedIn providers and returns candidates with slugs.
+**ALWAYS use `search_people` first.** This is not optional. Every person entity must go through `search_people` before stub creation. The LinkedIn-backed slug ensures uniqueness and prevents duplicates. Only fall back to a manual ID (e.g. `firstname-lastname-descriptor`) as an absolute last resort when `search_people` returns zero results for the person.
+
+1. **Search for the person.** Call `search_people` with their name and affiliation (e.g. "John Smith MIT"). This searches LinkedIn providers and returns candidates with slugs. Try multiple queries if the first returns no results (e.g. try with and without affiliation, try alternate name spellings).
 2. **Pick the correct match.** Verify the person by headline, location, and other details.
 3. **Scrape their full profile.** Call `read_webpage(url=profile_url)` using the `profile_url` from the search result. The returned markdown includes a `![Profile Photo](url)` line with a high-resolution (800x800) photo URL, plus their full bio, experience, and education.
 4. **Create the stub.** Call `create_stub` with:
@@ -179,7 +210,7 @@ After push, the backend:
 
 **Empty stubs.** A stub with no summary is a dead end. Write 2-4 real sentences.
 
-**Wrong slug for people.** Use `search_people` to get the LinkedIn-backed slug. Don't invent slugs for people — duplicates are hard to merge.
+**Wrong slug for people.** ALWAYS use `search_people` to get the LinkedIn-backed slug. Never invent slugs for people — the LinkedIn vanity ID is the canonical identifier. Only create a manual `firstname-lastname-descriptor` slug as an absolute last resort when `search_people` returns no results after multiple query attempts. Duplicates are hard to merge.
 
 **Over-linking.** Not every noun needs a wikilink. Link entities that a reader might want to learn more about. Don't link common words like "computer" or "university" unless they refer to a specific entity.
 
