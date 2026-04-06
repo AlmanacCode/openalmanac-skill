@@ -145,8 +145,10 @@ Read multiple articles at once. No authentication needed.
 ```bash
 curl -X POST https://api.openalmanac.org/api/articles/batch \
   -H "Content-Type: application/json" \
-  -d '{"slugs": ["alan-turing", "machine-learning", "nonexistent-slug"]}'
+  -d '{"slugs": ["alan-turing", "machine-learning", "nonexistent-slug"], "community_slug": "machine-learning"}'
 ```
+
+Omit `community_slug` for global almanac articles; set it to resolve short slugs inside a community wiki.
 
 Response:
 ```json
@@ -184,7 +186,62 @@ Response:
 ```
 
 **Parameters:**
-- `slugs` (required) — Array of article slugs to read (1-20)
+- `slugs` (required) — Array of article slugs to read (1–20)
+- `community_slug` (optional) — Community slug for community-owned wiki articles (same resolution as single-article routes)
+
+### Batch download markdown
+
+Download up to 50 articles as markdown with YAML frontmatter (same shape as `GET /api/articles/{id}?format=md`). No authentication.
+
+```bash
+curl -X POST https://api.openalmanac.org/api/articles/batch-download \
+  -H "Content-Type: application/json" \
+  -d '{"slugs": ["alan-turing", "quantum-computing"], "community_slug": "machine-learning"}'
+```
+
+**Parameters:**
+- `slugs` (required) — 1–50 article slugs
+- `community_slug` (optional) — When set, resolves each slug inside that community wiki; omit for global articles
+
+Response:
+```json
+{
+  "articles": {
+    "alan-turing": "---\narticle_id: alan-turing\n...\n---\n\nBody...",
+    "quantum-computing": "---\n...\n"
+  },
+  "errors": {
+    "missing-slug": "not_found"
+  }
+}
+```
+
+### Batch publish markdown
+
+Create or update multiple articles from full markdown bodies in one request. **Requires authentication.** Behavior matches `PUT` with `text/markdown`: frontmatter can include `community_slug` (for wiki articles), `updated_at` (from download; stale writes fail), and `edit_summary` (maps to `change_title`).
+
+```bash
+curl -X POST https://api.openalmanac.org/api/articles/batch-publish \
+  -H "Authorization: Bearer oa_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"articles": [{"slug": "my-article", "markdown": "---\narticle_id: my-article\ntitle: \"My Article\"\n...\n---\n\nContent..."}]}'
+```
+
+**Parameters:**
+- `articles` (required) — 1–50 items, each with `slug` and `markdown` (full file including frontmatter)
+
+Response:
+```json
+{
+  "results": [
+    {"slug": "my-article", "status": "created", "canonical_path": "/article/my-article", "error": null},
+    {"slug": "other", "status": "updated", "canonical_path": "/communities/ml/wiki/other", "error": null},
+    {"slug": "bad", "status": "failed", "canonical_path": null, "error": "No changes detected."}
+  ]
+}
+```
+
+`status` is `created`, `updated`, or `failed`.
 
 ### Get as markdown
 
@@ -900,6 +957,8 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | Get article (JSON) | GET | `/api/articles/{id}` | No | — |
 | Get article (markdown) | GET | `/api/articles/{id}?format=md` | No | — |
 | Batch read articles | POST | `/api/articles/batch` | No | `application/json` |
+| Batch download (markdown) | POST | `/api/articles/batch-download` | No | `application/json` |
+| Batch publish (markdown) | POST | `/api/articles/batch-publish` | Yes | `application/json` |
 | Batch search | POST | `/api/search/batch` | No | `application/json` |
 | Search (single) | GET | `/api/search?query=...&community=...` | No | — |
 | Suggest | GET | `/api/suggest?query=...&community=...` | No | — |
@@ -909,7 +968,7 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | Propose article | — | MCP tool `propose_article` | No | — |
 | Create article | POST | `/api/articles` | Yes | `application/json` or `text/markdown` |
 | Create or edit article | PUT | `/api/articles/{id}` | Yes | `application/json` or `text/markdown` |
-| Create stubs (batch) | POST | `/api/articles/stubs` | Yes | `application/json` |
+| Create stubs (batch, deprecated) | POST | `/api/articles/stubs` | Yes | `application/json` |
 | Requested articles | GET | `/api/articles/requested` | No | — |
 | Related articles | GET | `/api/articles/{id}/related` | No | — |
 | Search people | GET | `/api/people/search?query=...` | Yes | — |
@@ -920,13 +979,13 @@ When you hit the limit, you'll get a `429 Too Many Requests` response. Wait and 
 | List/search communities | GET | `/api/communities?query=...` | No | — |
 | Create community | POST | `/api/communities` | Yes | `application/json` |
 | Create post | POST | `/api/communities/{slug}/posts` | Yes | `application/json` |
-| Auto-link article | POST | `/api/articles/{id}/auto-link` | Yes | `application/json` |
+| Auto-link article (deprecated) | POST | `/api/articles/{id}/auto-link` | Yes | `application/json` |
 
 ---
 
 ## Communities
 
-Communities are topic-based spaces for curating articles and discussions. After publishing an article, link it to relevant communities so it reaches the right audience.
+Communities are topic-based spaces for curating articles and discussions. Community-owned wiki articles should be written directly under the target community. Legacy linking endpoints still exist for direct API callers, but they are deprecated.
 
 ### Search communities
 
@@ -992,9 +1051,9 @@ curl -X POST https://api.openalmanac.org/api/communities/machine-learning/posts 
 
 **Flairs:** `discussion`, `article-request`, `question`, `announcement`
 
-### Link article to communities (batch)
+### Link article to communities (batch, deprecated)
 
-**Requires authentication.** Links an article to one or more communities in a single request. Idempotent — already-linked articles are reported as `already_linked`, not errors.
+**Deprecated.** **Requires authentication.** Links an article to one or more communities in a single request. Idempotent — already-linked articles are reported as `already_linked`, not errors.
 
 ```bash
 curl -X POST https://api.openalmanac.org/api/articles/transformer-architecture/auto-link \
@@ -1013,34 +1072,48 @@ Response (always 200 if the article exists, 404 if it doesn't):
 
 **Failure reasons:** `community_not_found`, `already_linked`
 
-### Auto-link workflow
+### Auto-link workflow (global articles, deprecated)
 
-After every `publish`, follow this flow to connect your article with relevant communities:
-
-1. Call `search_communities` (no query) to get all communities
-2. Analyze the article's content, title, and topics against community names and descriptions
-3. Present your suggestions to the user: *"I'd suggest linking this to Machine Learning, Deep Learning, and Neural Networks. Adjust or press enter to accept."*
-4. If the user confirms or skips → call `link_article` with all suggested community slugs
-5. If the user picks specific ones → call `link_article` with only those
+For **global** (non–community-owned) articles, a legacy API still exists to attach the article to curated communities after `publish` (`POST /api/articles/{article_id}/auto-link`), but it is deprecated and should not be treated as part of the normal agent workflow. Community-owned wiki articles are created under a community path; use `new` + `publish` with `community_slug` instead of separate linking.
 
 ---
 
 ## Article Linking & Stubs
 
-Articles can link to each other using `[[slug|Display Text]]` wikilink syntax. Every entity mentioned in an article should have an article or stub. **Before writing articles with entity links, read the [linking guidelines](https://www.openalmanac.org/ai-linking-guidelines.md).**
+Articles can link to each other using `[[slug|Display Text]]` wikilink syntax. **Before writing articles with entity links, read the [linking guidelines](https://www.openalmanac.org/ai-linking-guidelines.md).**
 
 ### Wikilink syntax
 
-Use `[[slug|Display Text]]` in the article markdown body. The slug must match an existing article or stub — links to non-existent slugs are stripped to plain text on publish.
+Use `[[slug|Display Text]]` in the article markdown body. **Stored markdown keeps wikilink markup** (dead links are not stripped). For **community wiki** articles, publishing content with a wikilink to a missing slug **auto-creates a minimal stub** for that slug (same transaction). Namespaced slugs (`foo:bar`) are not auto-stubbed.
 
 ```markdown
 She studied [[reinforcement-learning|reinforcement learning]] at [[mit|MIT]]
 under the supervision of [[john-smith-4a8b2c1|John Smith]].
 ```
 
-### Create stubs (batch)
+### Community wiki listing
 
-Stubs are placeholder articles for entities that don't have a full article yet. Create up to 50 at once. **Requires authentication.**
+`GET /api/communities/{slug}/wiki` supports `sort=recent` (default) or `sort=most_referenced` (inbound link count). Response items can include `stub` and `reference_count` (when sorted by most referenced).
+
+### MCP tools (articles)
+
+These tools wrap the HTTP API; use them from MCP-enabled clients instead of hand-curling when possible.
+
+| Tool | API | Notes |
+|------|-----|--------|
+| `read` | `POST /api/articles/batch` | `slugs` (1–20), optional `community_slug` |
+| `download` | `POST /api/articles/batch-download` | `slugs` (1–50), optional `community_slug`; writes `~/.openalmanac/articles/...` |
+| `publish` | `POST /api/articles/batch-publish` | `slugs` and/or `community_slug` (folder publish); validates locally then sends markdown batch |
+| `new` | (local only) | Scaffolds `.md` files; each article can include optional explicit `slug`; optional `community_slug`; then `publish` |
+| `search_articles` | `POST /api/search/batch` | Batch search |
+| `list_articles` | `GET /api/communities/{slug}/wiki` | `stubs_only`, `sort` (`recent` \| `most_referenced`), `topic`, `limit` |
+| `propose_article` | — | Client-side planning step before writing (see [Propose an Article](#propose-an-article)); no HTTP call |
+
+`new` accepts optional explicit slugs and falls back to deriving them from titles when omitted. Prefer explicit slugs when you know the canonical ID. `publish` runs local validation before calling batch-publish; put `edit_summary` in frontmatter for per-article change notes. There is no separate MCP tool for stubs — the raw stub API remains available but should be treated as deprecated in favor of wikilink auto-stubs when publishing community wiki markdown.
+
+### Create stubs (batch, deprecated)
+
+**Deprecated.** Stubs are placeholder articles for entities that don't have a full article yet. Create up to 50 at once. Prefer plain wikilinks plus publish-time auto-stubs for community wiki content. **Requires authentication.**
 
 ```bash
 curl -X POST https://api.openalmanac.org/api/articles/stubs \
@@ -1115,7 +1188,7 @@ Response:
 }
 ```
 
-Use the returned `slug` when calling `create_stubs` for people.
+Use the returned `slug` when writing `[[slug|...]]` wikilinks. The raw `POST /api/articles/stubs` path still exists, but it is deprecated.
 
 ### Requested articles (most linked stubs)
 
@@ -1176,10 +1249,10 @@ Search responses (`GET /api/search`) now include `stub` and `entity_type` on eac
 ### Linking workflow
 
 1. **For each entity mentioned** in your article:
-   - People: `search_people` → `read_webpage(profile_url)` to get high-res photo and full bio → `create_stubs` with the `image_url` from the `![Profile Photo](url)` line
-   - Topics/orgs/events: `search_articles` → if not found, `create_stubs`
+   - People: `search_people` → `read_webpage(profile_url)` for bio; prefer canonical wikilinks and publish-time auto-stubs. The raw stub API remains available only as a deprecated escape hatch for rich manual stubs.
+   - Topics/orgs/events: `search_articles` → choose the canonical slug and rely on **auto-stubs** from wikilinks when publishing community wiki markdown unless you have a specific legacy API reason not to.
 2. **Write `[[slug|Display Text]]`** in the article body
-3. **Publish** — backend validates links, strips broken ones, creates relationship edges
+3. **Publish** — backend builds relationship edges for resolved targets; wikilink text is preserved in stored content
 
 ---
 
