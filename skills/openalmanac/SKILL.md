@@ -274,7 +274,7 @@ Put a `::name{props}` line on its own — the server resolves it into a data pay
 
 | Directive | Props | Renders |
 |-|-|-|
-| `::topic-grid` | `columns` | Tiles of every topic in the wiki |
+| `::topic-grid` | `topics=a,b,c`, `columns` | Tiles of topics — all if no `topics` prop, or filtered to the listed slugs in author order |
 | `::recent-changes` | `limit` (default 10) | Dated timeline of recent page edits |
 | `::stub-list` | `limit` (default 10), `topic` | Grid of stub pages, optionally scoped to one topic |
 | `::wiki-stats` | — | Page / stub / topic / member counts |
@@ -331,7 +331,7 @@ curl "https://api.openalmanac.org/api/w/lockpicking/topics?format=flat"
 curl -X POST https://api.openalmanac.org/api/w/lockpicking/topics \
   -H "Authorization: Bearer oa_your_api_key" \
   -H "Content-Type: application/json" \
-  -d '{"title": "Security Pins", "description": "Pins designed to resist picking", "parent_slugs": ["locks"]}'
+  -d '{"title": "Security Pins", "description": "Pins designed to resist picking", "image_url": "https://example.com/image.jpg", "parent_slugs": ["locks"]}'
 ```
 
 ### Batch create topics
@@ -340,7 +340,7 @@ curl -X POST https://api.openalmanac.org/api/w/lockpicking/topics \
 curl -X POST https://api.openalmanac.org/api/w/lockpicking/topics/batch \
   -H "Authorization: Bearer oa_your_api_key" \
   -H "Content-Type: application/json" \
-  -d '{"topics": [{"title": "Security Pins", "parent_slugs": ["locks"]}, {"title": "Pin Tumbler Locks", "parent_slugs": ["locks"]}]}'
+  -d '{"topics": [{"title": "Security Pins", "image_url": "https://example.com/pins.jpg", "parent_slugs": ["locks"]}, {"title": "Pin Tumbler Locks", "parent_slugs": ["locks"]}]}'
 ```
 
 ---
