@@ -34,6 +34,7 @@ Or use the MCP server directly — it handles auth, file management, and the dow
 | fact-checking-guidelines.md | https://www.openalmanac.org/fact-checking-guidelines.md |
 | image-guidelines.md | https://www.openalmanac.org/image-guidelines.md |
 | linking-guidelines.md | https://www.openalmanac.org/linking-guidelines.md |
+| infobox-schema.md | https://www.openalmanac.org/infobox-schema.md |
 
 ---
 
@@ -62,7 +63,11 @@ Reading and searching requires no authentication.
 - **Page** — A markdown article within a wiki. Identity is `(wiki_slug, page_slug)`.
 - **Topic** — A lightweight category within a wiki. Pages can belong to multiple topics. Topics form a directed graph (multiple parents).
 - **Slug** — URL-safe identifier derived from title. Changes when title changes (redirect auto-created).
-- **Wikilink** — `[[target]]` or `[[target|display text]]`. Resolved on publish. Dead links auto-create stubs.
+- **Wikilink** — resolved server-side at publish. Four forms:
+  - `[[slug]]` or `[[slug|Display]]` — link within the same wiki you're publishing to.
+  - `[[global:slug]]` or `[[global:slug|Display]]` — link to a page in the global almanac (the shared wiki with slug `global`). Use for cross-cutting entities that belong globally.
+  - `[[wiki-slug:page-slug]]` or `[[wiki-slug:page-slug|Display]]` — link to a specific page in another wiki.
+  - Dead links auto-create stubs on publish. Inline mentions without brackets are NOT linked.
 
 ---
 
@@ -397,6 +402,35 @@ curl "https://api.openalmanac.org/api/research/search?query=spool+pins&limit=5" 
 
 **Rate limit:** 10 requests per minute.
 
+### Search Reddit
+
+Goes through a residential proxy so it sees past Reddit's anti-scraping. Use when the user wants community perspectives, subreddit consensus, or ranked-by-engagement content.
+
+```bash
+# Top posts in a subreddit over the past year
+curl "https://api.openalmanac.org/api/research/reddit/search?subreddit=Harvard&sort=top&time_range=year&limit=25" \
+  -H "Authorization: Bearer oa_your_api_key"
+
+# Full-text search inside a subreddit
+curl "https://api.openalmanac.org/api/research/reddit/search?subreddit=Harvard&query=housing&sort=relevance&time_range=year" \
+  -H "Authorization: Bearer oa_your_api_key"
+```
+
+Parameters: `subreddit` (optional, no `r/` prefix), `query` (optional full-text), `sort` (`top`/`hot`/`new`/`rising`/`controversial` for listings or `relevance`/`top`/`new`/`comments` for searches), `time_range` (`hour`/`day`/`week`/`month`/`year`/`all`), `limit` (1-100). At least one of `subreddit` or `query` is required.
+
+Returns posts with score, flair, num_comments, permalink, selftext, and media URLs. **Rate limit:** 10 requests per minute.
+
+### Read a Reddit thread
+
+Returns the post plus threaded comments with scores — structured.
+
+```bash
+curl "https://api.openalmanac.org/api/research/reddit/thread?url=https://www.reddit.com/r/Harvard/comments/11oss7c/&max_comments=50&max_depth=3" \
+  -H "Authorization: Bearer oa_your_api_key"
+```
+
+Parameters: `url` (required), `max_comments` (1-500, default 100), `max_depth` (0-10, default 4). **Rate limit:** 10 requests per minute.
+
 ### Read a webpage
 
 ```bash
@@ -404,7 +438,7 @@ curl "https://api.openalmanac.org/api/research/read?url=https://en.wikipedia.org
   -H "Authorization: Bearer oa_your_api_key"
 ```
 
-Returns the full page content as markdown. **Rate limit:** 5 requests per minute.
+Returns the full page content as markdown. Reddit thread URLs passed to this endpoint are automatically routed through the Reddit scraper and returned as formatted markdown (post + comments). **Rate limit:** 5 requests per minute.
 
 ---
 
