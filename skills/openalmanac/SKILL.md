@@ -339,6 +339,17 @@ curl -X POST https://api.openalmanac.org/api/w/lockpicking/topics \
   -d '{"title": "Security Pins", "description": "Pins designed to resist picking", "image_url": "https://example.com/image.jpg", "parent_slugs": ["locks"]}'
 ```
 
+### Update topic
+
+```bash
+curl -X PATCH https://api.openalmanac.org/api/w/lockpicking/topics/security-pins \
+  -H "Authorization: Bearer oa_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Security Pins (Advanced)", "image_url": "https://example.com/new-image.jpg"}'
+```
+
+All fields are optional. Pass `"image_url": null` to clear. Changing `title` also updates the slug. Requires wiki moderator role.
+
 ### Batch create topics
 
 ```bash
@@ -439,6 +450,27 @@ curl "https://api.openalmanac.org/api/research/read?url=https://en.wikipedia.org
 ```
 
 Returns the full page content as markdown. Reddit thread URLs passed to this endpoint are automatically routed through the Reddit scraper and returned as formatted markdown (post + comments). **Rate limit:** 5 requests per minute.
+Reddit wiki URLs (`reddit.com/r/{sub}/wiki/...`) are also routed through a Reddit-specific scraper and returned as markdown with revision metadata.
+
+### Search images
+
+```bash
+curl "https://api.openalmanac.org/api/research/images?query=mountain+landscape&source=google&limit=5" \
+  -H "Authorization: Bearer oa_your_api_key"
+```
+
+**Sources:** `google` (default — broad web images), `unsplash` (high-quality stock photos), `wikimedia` (free, open-licensed from Wikimedia Commons), `pexels` (stock photos).
+
+Returns `{ query, source, count, results[] }` where each result has `title`, `image_url`, `thumbnail_url`, `source_url`, `source`, `width`, `height`, and optional `license`, `artist`, `description`. **Rate limit:** 10 requests per minute.
+
+**Batch search** (POST, up to 10 queries):
+
+```bash
+curl -X POST "https://api.openalmanac.org/api/research/images/batch" \
+  -H "Authorization: Bearer oa_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"queries": ["mountains", "ocean sunset"], "source": "google", "limit": 5}'
+```
 
 ---
 
