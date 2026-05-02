@@ -1,4 +1,4 @@
-The following is an abridged version of an article on Wikipedia covering signs of AI writing (https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
+The following is an abridged version of a Wikipedia page covering signs of AI writing (https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
 ## AI Writing Patterns to Avoid
 
 LLMs produce recognizable patterns. These patterns erode reader trust and trigger automated detection. This document is a field guide — learn the patterns so you don't produce them.
@@ -9,7 +9,7 @@ LLMs predict the statistically most likely next token. This causes regression to
 
 LLMs also have repetition penalties that cause unnecessary synonym rotation, and they are trained heavily on promotional text (press releases, marketing copy, fan wikis, listicles), which biases output toward puffery even when the prompt asks for neutrality.
 
-Every pattern below is drawn from real articles flagged as AI-generated.
+Every pattern below is drawn from real pages flagged as AI-generated.
 
 ---
 
@@ -168,7 +168,7 @@ The list that follows is the content. The announcement adds nothing. Delete it a
 
 ### Formulaic conclusions
 
-A rigid formula: "Despite [positive qualities], [subject] faces challenges including [list]. Despite these challenges, [vaguely optimistic statement]." Often appears as a "Challenges" or "Future Outlook" section at the end of an article.
+A rigid formula: "Despite [positive qualities], [subject] faces challenges including [list]. Despite these challenges, [vaguely optimistic statement]." Often appears as a "Challenges" or "Future Outlook" section at the end of a page.
 
 Bad:
 
@@ -178,7 +178,7 @@ Bad:
 
 > Despite their promising applications, pyroelectric materials face several challenges that must be addressed for broader adoption. Despite these challenges, the versatility of pyroelectric materials positions them as critical components for sustainable energy solutions.
 
-Encyclopedic articles don't need conclusions. They don't need to end on an optimistic note. End with the last substantive fact.
+Encyclopedic pages don't need conclusions. They don't need to end on an optimistic note. End with the last substantive fact.
 
 ### Knowledge-gap hedging
 
@@ -206,7 +206,7 @@ Bad:
 
 This tells the reader nothing about what she said or what those outlets reported. It just name-drops publications.
 
-In Almanac articles, cite sources. Summarize what those sources report. Don't use the body text to list which outlets have covered the subject.
+In Almanac pages, cite sources. Summarize what those sources report. Don't use the body text to list which outlets have covered the subject.
 
 ---
 
@@ -309,7 +309,7 @@ Use a plain list instead. "Her work includes education, research, and public out
 
 ### Publication lists as bibliographies
 
-Articles are not CVs. Never include bulleted or formatted bibliographies.
+Pages are not CVs. Never include bulleted or formatted bibliographies.
 
 Bad:
 
@@ -352,4 +352,4 @@ LLMs create small tables for information that works better as prose. A two-row, 
 
 Read each sentence you write and ask: does this sentence contain a specific fact that the reader didn't know before? If the answer is no — if the sentence interprets, evaluates, announces, puffs up, or summarizes without adding information — delete it.
 
-Good Almanac articles are dense with facts and light on commentary. Every sentence earns its place by telling the reader something new and sourced.
+Good Almanac pages are dense with facts and light on commentary. Every sentence earns its place by telling the reader something new and sourced.

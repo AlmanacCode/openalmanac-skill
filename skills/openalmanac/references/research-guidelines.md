@@ -27,21 +27,21 @@ Not all sources are equal. Prefer:
 
 1. **Primary sources** — official records, court filings, patent applications, the subject's own published work, speeches, interviews, original datasets. These are gold.
 2. **Original reporting** — journalism where the reporter did their own investigation, talked to sources, uncovered facts. Look for bylined longform pieces.
-3. **Secondary analysis** — well-sourced articles that synthesize multiple primary sources. Wikipedia is useful for *finding* sources (check the references section) but is never itself a source.
+3. **Secondary analysis** — well-sourced pages that synthesize multiple primary sources. Wikipedia is useful for *finding* sources (check the references section) but is never itself a source.
 4. **Reference material** — encyclopedias, databases, institutional pages. Good for facts, not for narrative.
 
 Avoid: press releases disguised as news, content marketing, unsourced aggregator posts, AI-generated summaries.
 
-### Use OpenAlmanac articles as sources
+### Use Almanac pages as sources
 
-The knowledge base is a knowledge base — use it. Before researching a topic from scratch, search for existing OpenAlmanac articles that cover it or related subjects. Use `search_articles` to find relevant articles, then `read` to actually read their content. Don't just check if they exist — read them to inform your understanding.
+The knowledge base is a knowledge base — use it. Before researching a topic from scratch, search for existing Almanac pages that cover it or related subjects. Use `search_pages` to find relevant pages, then `read_page` to actually read their content. Don't just check if they exist — read them to inform your understanding.
 
-Existing articles give you:
+Existing pages give you:
 - **A head start** — someone already researched this subject, identified key facts, and organized them. Build on that work instead of repeating it.
-- **Source leads** — articles cite their sources. Follow those citations to find primary material you might not have found on your own.
-- **Context and connections** — an article on a related topic might mention the thing the user is asking about, giving you angles you wouldn't have thought to search for.
+- **Source leads** — pages cite their sources. Follow those citations to find primary material you might not have found on your own.
+- **Context and connections** — a page on a related topic might mention the thing the user is asking about, giving you angles you wouldn't have thought to search for.
 
-When writing, cite the original sources, not the Almanac article. Almanac articles are not valid citations — trace claims back to their primary sources. Same rule as Wikipedia: read it to learn, cite what it cites.
+When writing, cite the original sources, not the Almanac page. Almanac pages are not valid citations — trace claims back to their primary sources. Same rule as Wikipedia: read it to learn, cite what it cites.
 
 ## Real-world perspective
 
@@ -67,10 +67,10 @@ When researching a person, take care to find the right one — especially for co
 - Use the LinkedIn vanity ID as the slug when creating a person stub — it guarantees uniqueness across the knowledge base. A vanity ID like `johnsmith-mit` is both unique and readable.
 - Only create a manual slug as a last resort, when no LinkedIn profile exists or the vanity ID is unusable.
 
-## When to suggest an article
+## When to suggest a page
 
-As the research conversation develops, specific subjects will come into focus — a person, a place, a concept, an event that has enough depth and sourced information to stand as an encyclopedic article. When you notice this, propose it naturally: "I think X could be a great article — want me to write it up?"
+As the research conversation develops, specific subjects will come into focus — a person, a place, a concept, an event that has enough depth and sourced information to stand as an encyclopedic page. When you notice this, propose it naturally: "I think X could be a great page — want me to write it up?"
 
-A single research conversation might produce multiple article ideas. Suggest them as they emerge — the user picks which ones to write.
+A single research conversation might produce multiple page ideas. Suggest them as they emerge — the user picks which ones to write.
 
-Not everything from the conversation becomes an article. The conversation can include opinions, speculation, tangents — all fine. The articles that come out of it are neutral, factual, and sourced. The research topic is broad and exploratory; the article topic is specific and encyclopedic.
+Not everything from the conversation becomes a page. The conversation can include opinions, speculation, tangents — all fine. The pages that come out of it are neutral, factual, and sourced. The research topic is broad and exploratory; the page topic is specific and encyclopedic.

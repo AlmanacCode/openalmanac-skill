@@ -1,6 +1,6 @@
 # Writing Guidelines
 
-These guidelines are for writing OpenAlmanac articles. Read these before writing any article. Also read https://www.openalmanac.org/ai-patterns-to-avoid.md for specific AI writing patterns to avoid.
+These guidelines are for writing Almanac pages. Read these before writing any page. Also read https://www.openalmanac.org/ai-patterns-to-avoid.md for specific AI writing patterns to avoid.
 
 ## Before writing
 
@@ -9,16 +9,16 @@ Before writing a single sentence of body text, list every source you gathered du
 
 ```yaml
 sources:
-  - key: example-article-title
-    url: https://example.com/article
-    title: "Article Title — Publication Name"
+  - key: example-page-title
+    url: https://example.com/page
+    title: "Page Title — Publication Name"
     accessed_date: "2025-01-15"
 ```
 
 ### Write a pure text draft
 The first draft should be pure prose with [@key] citation markers. No wikilinks (`[[slug|Display Text]]`), no images (`![caption](url)`), no stub creation. Just text and citations. The linking and image agents will handle the rest after the draft is complete.
 
-## Article structure
+## Page structure
 
 ### Lead paragraph
 The lead should be 2-4 sentences that tell the reader what the subject is and why it matters — through specific facts, not evaluative claims. A reader who only reads the lead should come away with the most important information.
@@ -31,7 +31,7 @@ Use `## Section Title` for major sections. Use `### Subsection Title` sparingly 
 Each section should add new information. If you find yourself restating facts from an earlier section, cut the repetition.
 
 ### No formulaic conclusions
-Encyclopedic articles don't need a concluding section. End with the last substantive fact. Don't write "In conclusion..." or "X continues to shape..." — just stop when the information stops.
+Encyclopedic pages don't need a concluding section. End with the last substantive fact. Don't write "In conclusion..." or "X continues to shape..." — just stop when the information stops.
 
 ## Fact density
 
@@ -50,11 +50,11 @@ If a sentence doesn't contain a fact, delete it. Commentary, interpretation, and
 - Every source in the sources list must be referenced at least once in the body with [@key]
 - Every [@key] marker in the body must have a matching source key in the frontmatter
 - Display numbers are computed automatically from first-appearance order — just use the keys
-- Cite the source that actually supports the claim — not the source you happened to be reading when you wrote the sentence. Misattributed citations are the most common problem in AI-written articles.
+- Cite the source that actually supports the claim — not the source you happened to be reading when you wrote the sentence. Misattributed citations are the most common problem in AI-written pages.
 
 ## Tone
 
-Write like a detailed encyclopedia that people actually enjoy reading. Not a blog post, not a press release, not an academic paper. Articles should be thorough and comprehensive — go deep on the subject, cover it from multiple angles, include the details that make it come alive. But density doesn't mean dry. The best encyclopedia articles are ones people read for fun — they learn something in every sentence and want to keep going.
+Write like a detailed encyclopedia that people actually enjoy reading. Not a blog post, not a press release, not an academic paper. Pages should be thorough and comprehensive — go deep on the subject, cover it from multiple angles, include the details that make it come alive. But density doesn't mean dry. The best encyclopedia pages are ones people read for fun — they learn something in every sentence and want to keep going.
 
 - Use "is" not "serves as" or "stands as"
 - Use the subject's name or pronouns, not rotating descriptors ("the professor... the researcher... the educator...")
@@ -63,7 +63,7 @@ Write like a detailed encyclopedia that people actually enjoy reading. Not a blo
 
 ## Infobox
 
-Include an infobox for any article about a person, place, organization, event, or concept. The infobox goes in the YAML frontmatter.
+Include an infobox for any page about a person, place, organization, event, or concept. The infobox goes in the YAML frontmatter.
 
 ### Header
 - `image_url` — hero image, the single most representative image of the subject
@@ -85,6 +85,6 @@ You don't need all six types. Pick 1-3 that make sense for the subject.
 
 ## Length
 
-Go deep. Err on the side of more detail, not less. A well-sourced article on a major topic should be as thorough as a good Wikipedia article — covering history, context, specifics, different angles, notable incidents, quotes from relevant people. If you have the sourced material, include it.
+Go deep. Err on the side of more detail, not less. A well-sourced page on a major topic should be as thorough as a good Wikipedia page — covering history, context, specifics, different angles, notable incidents, quotes from relevant people. If you have the sourced material, include it.
 
 Thin sections are worse than no sections. If you don't have enough sourced material for a section, either research more or leave it out.
